@@ -56,22 +56,29 @@ class ViewController : UIViewController {
         // Unwrap the optional (a value might not have been given in the amount text field)
         if let amountProvided = amountGiven.text {
             
-            print("something was provided in the amount text field...")
+            print("something was provided in the amount text field... it was \(amountProvided)")
 
-            // We at least have a string for the dollar amount, strip out the $ sign if it is present
-            var amountProvidedClean : String = ""
-            for character in amountProvided.characters {
-                if character != "$" {
-                    amountProvidedClean += String(character)
+            // Only proceed if the value is not an empty string
+            if amountProvided != "" {
+                
+                // We at least have a string for the dollar amount, strip out the $ sign if it is present
+                var amountProvidedClean : String = ""
+                for character in amountProvided.characters {
+                    if character != "$" {
+                        amountProvidedClean += String(character)
+                    }
                 }
-            }
-            
-            // We at least have a string, now try to make the value be a double
-            if let amount = Double(amountProvidedClean) {
-                print("...and the value is \(amount)")
-                amountAsDouble = amount
-            } else {
-                error += "Please provide a valid\ndollar amount, e.g.: 27.50\n\n"
+                
+                // We at least have a string, now try to make the value be a double
+                if let amount = Double(amountProvidedClean) {
+                    if amount > 0 {
+                        print("...and the value is \(amount)")
+                        amountAsDouble = amount
+                    }
+                } else {
+                    error += "Please provide a valid\ndollar amount, e.g.: 27.50\n\n"
+                }
+
             }
             
         }
@@ -81,26 +88,33 @@ class ViewController : UIViewController {
             
             print("something was provided in the tip text field...")
             
-            // We at least have a string for the tip %, strip out the % sign if it is present
-            var tipPercentageClean : String = ""
-            for character in tipProvided.characters {
-                if character != "%" {
-                    tipPercentageClean += String(character)
+            // Only proceed if the value is not an empty string
+            if tipProvided != "" {
+                
+                // We at least have a string for the tip %, strip out the % sign if it is present
+                var tipPercentageClean : String = ""
+                for character in tipProvided.characters {
+                    if character != "%" {
+                        tipPercentageClean += String(character)
+                    }
                 }
-            }
-            
-            // Try to convert the value to a Double
-            if let tipPercent = Double(tipPercentageClean) {
-                print("...and the percentage is \(tipPercent)")
-                tipAsDouble = tipPercent
-            } else {
-                error += "Please provide a valid\ntip percentage, eg: 20%"
+                
+                // Try to convert the value to a Double
+                if let tipPercent = Double(tipPercentageClean) {
+                    if tipPercent > 0 {
+                        print("...and the percentage is \(tipPercent)")
+                        tipAsDouble = tipPercent
+                    }
+                } else {
+                    error += "Please provide a valid\ntip percentage, eg: 20%"
+                }
+                
             }
             
         }
         
         // Calculate the values if there were no errors
-        if error == "" {
+        if error == "" && tipAsDouble != 0 && amountAsDouble != 0 {
             // Actually calculate the value
             let total : Double = amountAsDouble * (1 + tipAsDouble / 100)
             payThisMuch.text = String.localizedStringWithFormat("Leave\n$%.2f", total)
@@ -209,24 +223,7 @@ class ViewController : UIViewController {
         
         // Add the tip percentage text field into the superview
         view.addSubview(tipGiven)
-        
-        /*
-         * Add a button
-         */
-        let calculate = UIButton(frame: CGRect(x: 0, y: 0, width: 150, height: 30))
-        
-        // Make the button, when touched, run the calculate method
-        calculate.addTarget(self, action: #selector(ViewController.determineTip), forControlEvents: UIControlEvents.TouchUpInside)
-        
-        // Set the button's title
-        calculate.setTitle("Calculate", forState: UIControlState.Normal)
-        
-        // Required to auto layout this button
-        calculate.translatesAutoresizingMaskIntoConstraints = false
-        
-        // Add the button into the super view
-        view.addSubview(calculate)
-        
+                
         /*
          * Create label for the amount that should be paid
          */
@@ -261,12 +258,11 @@ class ViewController : UIViewController {
             "inputField1": amountGiven,
             "label3": tip,
             "inputField2": tipGiven,
-            "button": calculate,
             "label4": payThisMuch]
         
         // Define the vertical constraints
         let verticalConstraints = NSLayoutConstraint.constraintsWithVisualFormat(
-            "V:|-50-[label1]-20-[label2][inputField1]-15-[label3][inputField2]-15-[button]-20-[label4]",
+            "V:|-50-[label1]-20-[label2][inputField1]-15-[label3][inputField2]-20-[label4]",
             options: [],
             metrics: nil,
             views: viewsDictionary)
@@ -280,7 +276,6 @@ class ViewController : UIViewController {
         amountGiven.centerHorizontallyInSuperview()
         tip.centerHorizontallyInSuperview()
         tipGiven.centerHorizontallyInSuperview()
-        calculate.centerHorizontallyInSuperview()
         payThisMuch.centerHorizontallyInSuperview()
         
         // Activate all defined constraints

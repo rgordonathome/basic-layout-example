@@ -162,6 +162,13 @@ class ViewController : UIViewController {
         amountGiven.contentVerticalAlignment = UIControlContentVerticalAlignment.Center
         amountGiven.textAlignment = NSTextAlignment.Center
         
+        // Make changes to the field trigger the tip calculation method
+        // See:
+        // https://developer.apple.com/library/ios/documentation/UIKit/Reference/UIControl_Class/#//apple_ref/c/tdef/UIControlEvents
+        // ... for a list of all possible UIControlEvents that can be used to trigger the method
+        // to the action parameter.
+        amountGiven.addTarget(self, action: #selector(ViewController.determineTip), forControlEvents: UIControlEvents.EditingChanged)
+
         // Required to autolayout this field
         amountGiven.translatesAutoresizingMaskIntoConstraints = false
         
@@ -193,6 +200,9 @@ class ViewController : UIViewController {
         tipGiven.backgroundColor = UIColor.whiteColor()
         tipGiven.contentVerticalAlignment = UIControlContentVerticalAlignment.Center
         tipGiven.textAlignment = NSTextAlignment.Center
+
+        // Make changes to the field trigger the tip calculation method
+        tipGiven.addTarget(self, action: #selector(ViewController.determineTip), forControlEvents: UIControlEvents.EditingChanged)
         
         // Required to autolayout this field
         tipGiven.translatesAutoresizingMaskIntoConstraints = false
